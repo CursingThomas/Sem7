@@ -1,34 +1,33 @@
-#include "dynamicLoadScaler.h"
+#include <DynamicLoadSaler.h>
 
-int getUsagePercentage(int threshold, int amountOfBytes)
+int GetUsagePercentage(int threshold, int amountOfBytes)
 {
     // all data is in bytes
-    if (threshold == 0 || threshold > 100)
+    if (threshold <= 0)
     {
-        // cannot devide by zero or exceed 100 percent
+        // cannot devide by zero and cannot be smaller than 1
         return -1;
     }
 
     return ((amountOfBytes * 100) / threshold);
 }
 
-int setQuality(int quality)
+int SetQuality(int quality, struct context **list)
 {
     if (quality < 0 || quality > 100 )
     {
         //0-100 is permitted range
         return -1;
     }
-    for(int i = (cnt_list[1] != NULL ? 1 : 0); cnt_list[i]; i++)
+    for (int i = (list[1] != NULL ? 1 : 0); list[i]; i++)
     {
-        cnt_list[i]->conf.stream_quality = quality;
+        list[i]->conf.stream_quality = quality;
     }
 
     return 1;
-
 }
 
-int addQuality(int quality)
+int AddQuality(int quality, struct context **list)
 {
     int currQuality = 0;
     if (quality < 0 || quality > 100 )
@@ -36,29 +35,23 @@ int addQuality(int quality)
         //0-100 is permitted range
         return -1;
     }
-    for(int i = (cnt_list[1] != NULL ? 1 : 0); cnt_list[i]; i++)
+    for (int i = (list[1] != NULL ? 1 : 0); list[i]; i++)
     {
-        currQuality= (cnt_list[i]->conf.stream_quality + quality);
-        if (currQuality > 100)
+        if ((list[i]->conf.stream_quality) >= 100)
         {
-            // quality cannot be over 100 defaulted to 100
-            setQuality(100);
+            // quality cannot be over 100 defaulted to 0
+            list[i]->conf.stream_quality = 100;
             return -1;
         }
 
-        setQuality(currQuality);
+        currQuality= (list[i]->conf.stream_quality  + quality);
+        list[i]->conf.stream_quality  = currQuality;
     }
-    MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
-                        ,_("quality added by: %d"),  quality);
-
-    MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
-                        ,_("quality is now: %d"),  currQuality);
 
     return 1;
-
 }
 
-int subtractQuality(int quality)
+int SubtractQuality(int quality, struct context **list)
 {
     int currQuality = 0;
     if (quality < 0 || quality > 100 )
@@ -66,29 +59,24 @@ int subtractQuality(int quality)
         //0-100 is permitted range
         return -1;
     }
-    for(int i = (cnt_list[1] != NULL ? 1 : 0); cnt_list[i]; i++)
+    for (int i = (list[1] != NULL ? 1 : 0); list[i]; i++)
     {
-        currQuality = (cnt_list[i]->conf.stream_quality - quality);
-        if (currQuality < 0)
+        if ((list[i]->conf.stream_quality - quality) < 0)
         {
             // quality cannot be negative defaulted to 0
-            setQuality(0);
+
+            list[i]->conf.stream_quality = 0;
             return -1;
         }
-        
-        setQuality(currQuality);
-    }
-    MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
-                        ,_("quality subtracted by: %d"),  quality);
 
-    MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
-                        ,_("quality is now: %d"),  currQuality);
+        currQuality = (list[i]->conf.stream_quality - quality);
+        list[i]->conf.stream_quality = currQuality;
+    }
 
     return 1;
-
 }
 
-int setAdaptiveScalingModifyer(int usagePercentage, int threshold)
+int SetAdaptiveScalingModifyer(int usagepercentage, int threshold, struct context **list)
 {
     int subtractionFlag = 0;
     if (threshold < 0 || threshold > 100)
@@ -96,275 +84,236 @@ int setAdaptiveScalingModifyer(int usagePercentage, int threshold)
         // out of bounds
         return -1;
     }
-    int difference = threshold - usagePercentage;
+    int difference = threshold - usagepercentage;
     if (difference < 0)
     {
         subtractionFlag = 1;
         difference = difference * -1;
     }
-    MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
-                        ,_("diff: %d\n"), difference);
-
-        if(difference > 100)
+    if (difference > 100)
     {
         if (subtractionFlag)
         {
-            setQuality(10);
+            setQuality(10, list);
         }else{
-            setQuality(50);
+            setQuality(50, list);
         }
-        MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
-                        ,_("diff > 100\n"));
+
+        return 1;        
+    }
+    if (difference <= 100 && difference >= 90)
+    {
+        if (subtractionFlag)
+        {
+            subtractQuality(10, list);
+        }else{
+            addQuality(10, list);
+        }
+
+        return 1;        
+    }
+    if (difference <= 89 && difference >= 80)
+    {
+        if (subtractionFlag)
+        {
+            subtractQuality(9, list);
+        }else{
+            addQuality(9, list);
+        }
+
+        return 1;        
+    }
+    if (difference <= 79 && difference >= 70)
+    {
+        if (subtractionFlag)
+        {
+            subtractQuality(8, list);
+
+        }else{
+            addQuality(8, list);
+        }
+
+        return 1;        
+    }
+    if (difference <= 69 && difference >= 60)
+    {
+        if (subtractionFlag)
+        {
+            subtractQuality(7, list);
+        }else{
+            addQuality(7, list);
+        }
+
+        return 1;        
+    }
+    if (difference <= 59 && difference >= 50)
+    {
+        if (subtractionFlag)
+        {
+            subtractQuality(6, list);
+        }else{
+            addQuality(6, list);
+        }
+
+        return 1;        
+    }
+    if( difference <= 49 && difference >= 40)
+    {
+        if (subtractionFlag)
+        {
+            subtractQuality(5, list);
+        }else{
+            addQuality(5, list);
+        }
+
+        return 1;        
+    }
+    if (difference <= 39 && difference >= 30)
+    {
+        if (subtractionFlag)
+        {
+            subtractQuality(4, list);
+        }else{
+            addQuality(4, list);
+        }
+
+        return 1;        
+    }
+    if (difference <= 29 && difference >= 20)
+    {
+        if (subtractionFlag)
+        {
+            subtractQuality(3, list);
+        }else{
+            addQuality(3, list);
+        }
+
         return 1;        
     }
 
-    if(difference <= 100 && difference >= 90)
+    if (difference <= 19 && difference >= 10)
     {
         if (subtractionFlag)
         {
-            subtractQuality(10);
+            subtractQuality(2, list);
         }else{
-            addQuality(10);
+            addQuality(2, list);
         }
-        MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
-                        ,_("diff 100 - 90\n"));
-        return 1;        
-    }
 
-        if(difference <= 89 && difference >= 80)
+        return 1;        
+    }
+    if (difference <= 9 && difference >= 0)
     {
         if (subtractionFlag)
         {
-            subtractQuality(9);
+            subtractQuality(1, list);
         }else{
-            addQuality(9);
+            addQuality(1, list);
         }
-        MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
-                        ,_("diff 89 - 80\n"));
-        return 1;        
-    }
 
-        if(difference <= 79 && difference >= 70)
-    {
-        if (subtractionFlag)
-        {
-            subtractQuality(8);
-            MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
-                        ,_("dsub\n"));
-        }else{
-            addQuality(8);
-            MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
-                        ,_("att\n"));
-        }
-        MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
-                        ,_("diff 79 - 70\n"));
-        return 1;        
-    }
-
-        if(difference <= 69 && difference >= 60)
-    {
-        if (subtractionFlag)
-        {
-            subtractQuality(7);
-        }else{
-            addQuality(7);
-        }
-        MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
-                        ,_("diff 69 - 60\n"));
-        return 1;        
-    }
-
-        if(difference <= 59 && difference >= 50)
-    {
-        if (subtractionFlag)
-        {
-            subtractQuality(6);
-        }else{
-            addQuality(6);
-        }
-        MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
-                        ,_("diff 59 - 50\n"));
-        return 1;        
-    }
-
-        if(difference <= 49 && difference >= 40)
-    {
-        if (subtractionFlag)
-        {
-            subtractQuality(5);
-        }else{
-            addQuality(5);
-        }
-        MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
-                        ,_("diff 49 - 40\n"));
-        return 1;        
-    }
-
-        if(difference <= 39 && difference >= 30)
-    {
-        if (subtractionFlag)
-        {
-            subtractQuality(4);
-        }else{
-            addQuality(4);
-        }
-        MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
-                        ,_("diff 39 - 30\n"));
-        return 1;        
-    }
-
-        if(difference <= 29 && difference >= 20)
-    {
-        if (subtractionFlag)
-        {
-            subtractQuality(3);
-        }else{
-            addQuality(3);
-        }
-        MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
-                        ,_("diff 29 - 20\n"));
-        return 1;        
-    }
-
-        if(difference <= 19 && difference >= 10)
-    {
-        if (subtractionFlag)
-        {
-            subtractQuality(2);
-        }else{
-            addQuality(2);
-        }
-        MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
-                        ,_("diff 19 - 10\n"));
-        return 1;        
-    }
-        if(difference <= 9 && difference >= 0)
-    {
-        if (subtractionFlag)
-        {
-            subtractQuality(1);
-        }else{
-            addQuality(1);
-        }
-        MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
-                        ,_("diff 10 - 0\n"));
         return 1;        
     }
 }
 
-int selectScalingModifyerHalf(int usagePercentage)
+int SelectScalingModifyer(int usagepercentage, struct context **list)
 {
     // scaling in 10% increments
-    if (usagePercentage >= 0 && usagePercentage <= 10)
+    if (usagepercentage >= 0 && usagepercentage <= 10)
     {
-        // scale down to x
-        //do quality change
-        for(int i = (cnt_list[1] != NULL ? 1 : 0); cnt_list[i]; i++)
+        for (int i = (list[1] != NULL ? 1 : 0); list[i]; i++)
         {
-            cnt_list[i]->conf.stream_quality = (cnt_list[i]->conf.stream_quality + 20);
+            list[i]->conf.stream_quality = (list[i]->conf.stream_quality + 20);
         }
         return 1;
     }
-    else if (usagePercentage >= 11 && usagePercentage <= 20)
+    else if (usagepercentage >= 11 && usagepercentage <= 20)
     {
-        // scale down to x
-                //do quality change
-        for(int i = (cnt_list[1] != NULL ? 1 : 0); cnt_list[i]; i++)
+        for (int i = (list[1] != NULL ? 1 : 0); list[i]; i++)
         {
-            cnt_list[i]->conf.stream_quality = (cnt_list[i]->conf.stream_quality + 15);
+            list[i]->conf.stream_quality = (list[i]->conf.stream_quality + 15);
         }
         return 2;
     }
-    else if (usagePercentage >= 21 && usagePercentage <= 30)
+    else if (usagepercentage >= 21 && usagepercentage <= 30)
     {
-        // scale down to x
-                //do quality change
-        for(int i = (cnt_list[1] != NULL ? 1 : 0); cnt_list[i]; i++)
+        for (int i = (list[1] != NULL ? 1 : 0); list[i]; i++)
         {   
-            cnt_list[i]->conf.stream_quality = (cnt_list[i]->conf.stream_quality + 10);            
+            list[i]->conf.stream_quality = (list[i]->conf.stream_quality + 10);            
         }
         return 3;
     }
-    else if (usagePercentage >= 31 && usagePercentage <= 40)
+    else if (usagepercentage >= 31 && usagepercentage <= 40)
     {
-        // scale down to x
-                //do quality change
-        for(int i = (cnt_list[1] != NULL ? 1 : 0); cnt_list[i]; i++)
+        for (int i = (list[1] != NULL ? 1 : 0); list[i]; i++)
         {
-            cnt_list[i]->conf.stream_quality = (cnt_list[i]->conf.stream_quality + 5);
+            list[i]->conf.stream_quality = (list[i]->conf.stream_quality + 5);
         }
         return 4;
     }
-    else if (usagePercentage >= 41 && usagePercentage <= 50)
+    else if (usagepercentage >= 41 && usagepercentage <= 50)
     {
-        // scale down to x
-                //do quality change
-        for(int i = (cnt_list[1] != NULL ? 1 : 0); cnt_list[i]; i++)
+        for (int i = (list[1] != NULL ? 1 : 0); list[i]; i++)
         {
-            cnt_list[i]->conf.stream_quality = (cnt_list[i]->conf.stream_quality + 1); 
+            list[i]->conf.stream_quality = (list[i]->conf.stream_quality + 1); 
         }
         return 5;
     }
-    else if (usagePercentage >= 51 && usagePercentage <= 60)
+    else if (usagepercentage >= 51 && usagepercentage <= 60)
     {
-        // scale down to x
-                //do quality change
-        for(int i = (cnt_list[1] != NULL ? 1 : 0); cnt_list[i]; i++)
+        for (int i = (list[1] != NULL ? 1 : 0); list[i]; i++)
         {
-            cnt_list[i]->conf.stream_quality = (cnt_list[i]->conf.stream_quality - 1);
+            list[i]->conf.stream_quality = (list[i]->conf.stream_quality - 1);
         }
         return 6;
     }
-    else if (usagePercentage >= 61 && usagePercentage <= 70)
+    else if (usagepercentage >= 61 && usagepercentage <= 70)
     {
-        // scale down to x
-                //do quality change
-        for(int i = (cnt_list[1] != NULL ? 1 : 0); cnt_list[i]; i++)
+        for (int i = (list[1] != NULL ? 1 : 0); list[i]; i++)
         {
-            cnt_list[i]->conf.stream_quality = (cnt_list[i]->conf.stream_quality - 5);
+            list[i]->conf.stream_quality = (list[i]->conf.stream_quality - 5);
         }
         return 7;
     }
-    else if (usagePercentage >= 71 && usagePercentage <= 80)
+    else if (usagepercentage >= 71 && usagepercentage <= 80)
     {
-        // scale down to x
-                //do quality change
-        for(int i = (cnt_list[1] != NULL ? 1 : 0); cnt_list[i]; i++)
+        for (int i = (list[1] != NULL ? 1 : 0); list[i]; i++)
         {
-            cnt_list[i]->conf.stream_quality = (cnt_list[i]->conf.stream_quality - 10);
+            list[i]->conf.stream_quality = (list[i]->conf.stream_quality - 10);
         }
         return 8;
     }
-    else if (usagePercentage >= 81 && usagePercentage <= 90)
+    else if (usagepercentage >= 81 && usagepercentage <= 90)
     {
-        // scale down to x
-                //do quality change
-        for(int i = (cnt_list[1] != NULL ? 1 : 0); cnt_list[i]; i++)
+        for (int i = (list[1] != NULL ? 1 : 0); list[i]; i++)
         {
-            cnt_list[i]->conf.stream_quality = (cnt_list[i]->conf.stream_quality - 15);
+            list[i]->conf.stream_quality = (list[i]->conf.stream_quality - 15);
         }
         return 9;
     }
-    else if (usagePercentage >= 91 && usagePercentage <= 100)
+    else if (usagepercentage >= 91 && usagepercentage <= 100)
     {
-        // scale down to x
-                //do quality change
-        for(int i = (cnt_list[1] != NULL ? 1 : 0); cnt_list[i]; i++)
+        for (int i = (list[1] != NULL ? 1 : 0); list[i]; i++)
         {
-            cnt_list[i]->conf.stream_quality = (cnt_list[i]->conf.stream_quality - 20);
+            list[i]->conf.stream_quality = (list[i]->conf.stream_quality - 20);
         }
         return 10;
     }
-    else if (usagePercentage >= 100)
+    else if (usagepercentage >= 100)
     {
-        // scale down to x
-                //do quality change
-        for(int i = (cnt_list[1] != NULL ? 1 : 0); cnt_list[i]; i++)
+        for (int i = (list[1] != NULL ? 1 : 0); list[i]; i++)
         {
-            cnt_list[i]->conf.stream_quality = 10;
+            list[i]->conf.stream_quality = 10;
         }
         return 11;
     }
 
     return -1;
+}
+
+int PControll(int SP, double Kp, int current)
+{
+    int adjust = SP - current;
+    double x = adjust  * Kp;
+
+    return ceil(x);
 }

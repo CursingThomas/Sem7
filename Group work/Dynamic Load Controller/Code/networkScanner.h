@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "logger.h"
 
 int getRx_Bytes();
 int getTx_Bytes();

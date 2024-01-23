@@ -4,13 +4,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "logger.h"
+#include <math.h>
 
-int getUsagePercentage(int threshold, int amountOfBytes);
-int setQuality(int quality);
-int addQuality(int quality);
-int subtractQuality(int quality);
-int setAdaptiveScalingModifyer(int usagepercentage, int threshold);
-int selectScalingModifyerHalf(int usagepercentage);
+int GetUsagePercentage(int threshold, int amountOfBytes);
+int SetQuality(int quality, struct context **list);
+int AddQuality(int quality, struct context **list);
+int SubtractQuality(int quality, struct context **list);
+int SetAdaptiveScalingModifyer(int usagepercentage, int threshold, struct context **list);
+int SelectScalingModifyerHalf(int usagepercentage, struct context **list);
+int PControll(int SP, double Kp, int current);
 
 #endif

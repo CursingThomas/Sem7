@@ -1,5 +1,3 @@
-#include "throughputScanner.h"
-
 int prev_rx = 0;
 int prev_tx = 0;
 
@@ -26,19 +24,18 @@ double getApproxMaxThroughput(double nominalPercentage)
         {
             i = 100;
         }
-    
     }
-    printf("%s", response);
-    printf("%s",bitrate);
-    char * output;
-    double bitrate_int = strtol(bitrate, &output, 10);
-    bitrate_int = bitrate_int + 1;
-    printf("%f", bitrate_int); 
+  printf("%s", response);
+  printf("%s",bitrate);
+  char * output;
+  double bitrate_int = strtol(bitrate, &output, 10);
+  bitrate_int = bitrate_int + 1;
+  printf("%f", bitrate_int); 
     if (nominalPercentage != 0 && nominalPercentage <= 100)
     {
         nominalPercentage = nominalPercentage / 100;
     }
-    printf("%f", (nominalPercentage * bitrate_int));
+printf("%f", (nominalPercentage * bitrate_int));
   return nominalPercentage * bitrate_int;
     
 }
@@ -49,9 +46,7 @@ int getRx_Bytes()
     int num = 0;
     ptr = fopen("/sys/class/net/lo/statistics/rx_bytes", "r");
     fscanf(ptr, "%d", &num);
-    //printf("rx bytes received%d", num);
     fclose(ptr);
-    ptr = NULL;
 
     return num;
 }
@@ -62,9 +57,7 @@ int getTx_Bytes()
     int num = 0;
     ptr = fopen("/sys/class/net/lo/statistics/tx_bytes", "r");
     fscanf(ptr, "%d", &num);
-    //printf("tx bytes received %d", num);
     fclose(ptr);
-    ptr = NULL;
 
     return num;
 }
@@ -81,7 +74,6 @@ int getRxThroughput()
     if (prev_rx == 0)
     {
         prev_rx = bytes;
-        printf("First startup round \n");
         printf("%d", prev_rx);
         return 0;
     }
@@ -94,8 +86,7 @@ int getRxThroughput()
         {
             diff = bytes - prev_rx;
         }        
-        //printf("Difference %d \n", diff);
-        //printf("prev rx%d\n", prev_rx);
+
         prev_rx = bytes;
         return diff;
     }
@@ -109,13 +100,11 @@ int getTxThroughput()
     {
         bytes = bytes * -1;
         negativeFlag = 1;
-        //printf("Bytes switched to a postive number\n");
     }
     if (prev_tx == 0)
     {
         prev_tx = bytes;
-        //printf("First startup round \n");
-        //printf("%d", prev_tx);
+
         return 0;
     }
     else {
@@ -127,21 +116,8 @@ int getTxThroughput()
         {
             diff = bytes - prev_tx;
         } 
-        //printf("Difference %d \n", diff);
-        //printf("prev rx%d\n", prev_rx);
+
         prev_tx = bytes;
         return diff;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
