@@ -1,7 +1,14 @@
+#include <NetworkScanner.h>
+
 int prev_rx = 0;
 int prev_tx = 0;
+/*
+*   As read in the function documentation for retrieving bytes, these are the paths which need to be hardcoded into the program.
+*/
+const char rxAdress = "/sys/class/net/lo/statistics/rx_bytes";
+const char txAdress = "/sys/class/net/lo/statistics/tx_bytes";
 
-double getApproxMaxThroughput(double nominalPercentage)
+double GetApproxMaxThroughput(double nominalPercentage)
 {
     char response[100];
     char bitrate[10];
@@ -25,59 +32,57 @@ double getApproxMaxThroughput(double nominalPercentage)
             i = 100;
         }
     }
-  printf("%s", response);
-  printf("%s",bitrate);
-  char * output;
-  double bitrate_int = strtol(bitrate, &output, 10);
-  bitrate_int = bitrate_int + 1;
-  printf("%f", bitrate_int); 
+
+    char * output;
+    double bitrate_int = strtol(bitrate, &output, 10);
+    bitrate_int = bitrate_int + 1;
+
     if (nominalPercentage != 0 && nominalPercentage <= 100)
     {
         nominalPercentage = nominalPercentage / 100;
     }
-printf("%f", (nominalPercentage * bitrate_int));
-  return nominalPercentage * bitrate_int;
-    
+    printf("%f", (nominalPercentage * bitrate_int));
+
+    return nominalPercentage * bitrate_int;
 }
 
-int getRx_Bytes()
+int GetRx_Bytes()
 {
     FILE* ptr;
     int num = 0;
-    ptr = fopen("/sys/class/net/lo/statistics/rx_bytes", "r");
+    ptr = fopen(rxAdress, "r");
     fscanf(ptr, "%d", &num);
     fclose(ptr);
 
     return num;
 }
 
-int getTx_Bytes()
+int GetTx_Bytes()
 {
     FILE* ptr;
     int num = 0;
-    ptr = fopen("/sys/class/net/lo/statistics/tx_bytes", "r");
+    ptr = fopen(txAdress, "r");
     fscanf(ptr, "%d", &num);
     fclose(ptr);
 
     return num;
 }
 
-int getRxThroughput()
+int GetRxThroughput()
 {   int bytes = getRx_Bytes();
     int negativeFlag = 0;
     if (bytes <= -1)
     {
         bytes = bytes * -1;
-        //printf("Bytes switched to a postive number\n");
         negativeFlag = 1;
     }
     if (prev_rx == 0)
     {
         prev_rx = bytes;
         printf("%d", prev_rx);
+
         return 0;
-    }
-    else {
+    }else {
         int diff = 0;
         if (negativeFlag == 1)
         {
@@ -86,13 +91,13 @@ int getRxThroughput()
         {
             diff = bytes - prev_rx;
         }        
-
         prev_rx = bytes;
+
         return diff;
     }
 }
 
-int getTxThroughput()
+int GetTxThroughput()
 {   
     int bytes = getTx_Bytes();
     int negativeFlag = 0;
@@ -106,8 +111,7 @@ int getTxThroughput()
         prev_tx = bytes;
 
         return 0;
-    }
-    else {
+    }else {
         int diff = 0;
         if (negativeFlag == 1)
         {
@@ -116,8 +120,8 @@ int getTxThroughput()
         {
             diff = bytes - prev_tx;
         } 
-
         prev_tx = bytes;
+
         return diff;
     }
 }
