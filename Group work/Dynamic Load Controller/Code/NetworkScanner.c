@@ -5,8 +5,8 @@ int prev_tx = 0;
 /*
 *   As read in the function documentation for retrieving bytes, these are the paths which need to be hardcoded into the program.
 */
-const char rxAdress = "/sys/class/net/lo/statistics/rx_bytes";
-const char txAdress = "/sys/class/net/lo/statistics/tx_bytes";
+const char *rxAdress = "/sys/class/net/lo/statistics/rx_bytes";
+const char *txAdress = "/sys/class/net/lo/statistics/tx_bytes";
 
 double GetApproxMaxThroughput(double nominalPercentage)
 {
@@ -69,7 +69,7 @@ int GetTx_Bytes()
 }
 
 int GetRxThroughput()
-{   int bytes = getRx_Bytes();
+{   int bytes = GetRx_Bytes();
     int negativeFlag = 0;
     if (bytes <= -1)
     {
@@ -99,7 +99,7 @@ int GetRxThroughput()
 
 int GetTxThroughput()
 {   
-    int bytes = getTx_Bytes();
+    int bytes = GetTx_Bytes();
     int negativeFlag = 0;
     if (bytes <= -1)
     {

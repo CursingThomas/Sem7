@@ -94,9 +94,9 @@ int SetAdaptiveScalingModifyer(int usagepercentage, int threshold, struct contex
     {
         if (subtractionFlag)
         {
-            setQuality(10, list);
+            SetQuality(10, list);
         }else{
-            setQuality(50, list);
+            SetQuality(50, list);
         }
 
         return 1;        
@@ -105,9 +105,9 @@ int SetAdaptiveScalingModifyer(int usagepercentage, int threshold, struct contex
     {
         if (subtractionFlag)
         {
-            subtractQuality(10, list);
+            SubtractQuality(10, list);
         }else{
-            addQuality(10, list);
+            AddQuality(10, list);
         }
 
         return 1;        
@@ -116,9 +116,9 @@ int SetAdaptiveScalingModifyer(int usagepercentage, int threshold, struct contex
     {
         if (subtractionFlag)
         {
-            subtractQuality(9, list);
+            SubtractQuality(9, list);
         }else{
-            addQuality(9, list);
+            AddQuality(9, list);
         }
 
         return 1;        
@@ -127,10 +127,10 @@ int SetAdaptiveScalingModifyer(int usagepercentage, int threshold, struct contex
     {
         if (subtractionFlag)
         {
-            subtractQuality(8, list);
+            SubtractQuality(8, list);
 
         }else{
-            addQuality(8, list);
+            AddQuality(8, list);
         }
 
         return 1;        
@@ -139,9 +139,9 @@ int SetAdaptiveScalingModifyer(int usagepercentage, int threshold, struct contex
     {
         if (subtractionFlag)
         {
-            subtractQuality(7, list);
+            SubtractQuality(7, list);
         }else{
-            addQuality(7, list);
+            AddQuality(7, list);
         }
 
         return 1;        
@@ -150,9 +150,9 @@ int SetAdaptiveScalingModifyer(int usagepercentage, int threshold, struct contex
     {
         if (subtractionFlag)
         {
-            subtractQuality(6, list);
+            SubtractQuality(6, list);
         }else{
-            addQuality(6, list);
+            AddQuality(6, list);
         }
 
         return 1;        
@@ -161,9 +161,9 @@ int SetAdaptiveScalingModifyer(int usagepercentage, int threshold, struct contex
     {
         if (subtractionFlag)
         {
-            subtractQuality(5, list);
+            SubtractQuality(5, list);
         }else{
-            addQuality(5, list);
+            AddQuality(5, list);
         }
 
         return 1;        
@@ -172,9 +172,9 @@ int SetAdaptiveScalingModifyer(int usagepercentage, int threshold, struct contex
     {
         if (subtractionFlag)
         {
-            subtractQuality(4, list);
+            SubtractQuality(4, list);
         }else{
-            addQuality(4, list);
+            AddQuality(4, list);
         }
 
         return 1;        
@@ -183,9 +183,9 @@ int SetAdaptiveScalingModifyer(int usagepercentage, int threshold, struct contex
     {
         if (subtractionFlag)
         {
-            subtractQuality(3, list);
+            SubtractQuality(3, list);
         }else{
-            addQuality(3, list);
+            AddQuality(3, list);
         }
 
         return 1;        
@@ -195,9 +195,9 @@ int SetAdaptiveScalingModifyer(int usagepercentage, int threshold, struct contex
     {
         if (subtractionFlag)
         {
-            subtractQuality(2, list);
+            SubtractQuality(2, list);
         }else{
-            addQuality(2, list);
+            AddQuality(2, list);
         }
 
         return 1;        
@@ -206,9 +206,9 @@ int SetAdaptiveScalingModifyer(int usagepercentage, int threshold, struct contex
     {
         if (subtractionFlag)
         {
-            subtractQuality(1, list);
+            SubtractQuality(1, list);
         }else{
-            addQuality(1, list);
+            AddQuality(1, list);
         }
 
         return 1;        
